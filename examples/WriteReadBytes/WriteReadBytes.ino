@@ -69,7 +69,8 @@
 /******************************************************************************
  * Public function definitions.
  ******************************************************************************/
-
+#define MyWire P_COM0.wire
+#define MySerial P_COM2.serial2
 /**************************************************************************//**
  * \fn void setup()
  *
@@ -77,12 +78,12 @@
  ******************************************************************************/
 void setup()
 {
-    // Initialize serial communication.
-    Serial.begin(9600);
+    // Initialize MySerial communication.
+    MySerial.begin(115200);//9600
     
     // Initiliaze EEPROM library.
     eeprom= new ZEeprom();
-    eeprom->begin(Wire,AT24Cxx_BASE_ADDR,AT24C02);
+    eeprom->begin(MyWire,AT24Cxx_BASE_ADDR,AT24C02);
 
     const byte address = 0;
     const byte count = 94;
@@ -99,21 +100,21 @@ void setup()
     }
 
     // Write input array to EEPROM memory.
-    Serial.println("Write bytes to EEPROM memory...");
+    MySerial.println("Write bytes to EEPROM memory...");
     eeprom->writeBytes(address, count, inputBytes);
 
     // Read array with bytes read from EEPROM memory.
-    Serial.println("Read bytes from EEPROM memory...");
+    MySerial.println("Read bytes from EEPROM memory...");
     eeprom->readBytes(address, count, outputBytes);
     
     // Print read bytes.
-    Serial.println("Read bytes:");
+    MySerial.println("Read bytes:");
     for (byte i = 0; i < count; i++)
     {
-        Serial.write(outputBytes[i]);
-        Serial.print(" ");
+        MySerial.write(outputBytes[i]);
+        MySerial.print(" ");
     }
-    Serial.println("");
+    MySerial.println("");
 }
 
 /**************************************************************************//**
