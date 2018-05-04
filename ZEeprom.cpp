@@ -34,6 +34,7 @@
 #include <Arduino.h>
 
 
+
 #include <ZEeprom.h>
 
 /******************************************************************************
@@ -90,9 +91,14 @@ ZEeprom::ZEeprom
 (
 )
 {
+  SerialDebug=0;
 }
 
 
+void ZEeprom::setSerialDebug(Uart * mySerialDebug)
+{
+  SerialDebug=mySerialDebug;
+}
 int ZEeprom::PAGE_LENGTH()
 {
 	
@@ -146,7 +152,7 @@ ZEeprom::writeByte
     unsigned int    address,
     byte    data
 ){
-	{Serial.print("writeByte(");Serial.print(address);Serial.println(")");}
+	if (SerialDebug) {SerialDebug->print("writeByte(");SerialDebug->print(address);SerialDebug->println(")");}
    
     _i2c->beginTransmission((uint8_t)DEVICEADDRESS);
 	if (((memorytype>>16) &&0xff)!=0)
@@ -177,7 +183,8 @@ ZEeprom::writeBytes
     unsigned int    length,
     byte*   p_data
 ){
-	{Serial.print("writeBytes(");Serial.print(address);Serial.print(",");Serial.print(length);Serial.println(")");}
+	if (SerialDebug) {SerialDebug->print("writeBytes(");SerialDebug->print(address);SerialDebug->print(",");
+        SerialDebug->print(length);SerialDebug->println(")");}
    
     // Write first page if not aligned.
     byte notAlignedLength = 0;
@@ -203,9 +210,9 @@ ZEeprom::writeBytes
         byte pageCount = length / EEPROM__PAGE_SIZE;
         for (byte i = 0; i < pageCount; i++)
         {
-            Serial.println("writePage2");
-			Serial.print("pageCount=");Serial.println(pageCount);
-			Serial.print("i=");Serial.println(i);
+            if (SerialDebug) {SerialDebug->println("writePage2");
+			SerialDebug->print("pageCount=");SerialDebug->println(pageCount);
+			SerialDebug->print("i=");SerialDebug->println(i);}
             writePage(address, EEPROM__PAGE_SIZE, p_data);
             address += EEPROM__PAGE_SIZE;
             p_data += EEPROM__PAGE_SIZE;
@@ -215,7 +222,7 @@ ZEeprom::writeBytes
         if (length > 0)
         {
             // Write remaining uncomplete page.
-         Serial.println("writePage3");
+         if (SerialDebug) SerialDebug->println("writePage3");
          writePage(address, length, p_data);
         }
     }
@@ -234,7 +241,7 @@ byte  ZEeprom::readByte
 (
     unsigned int address
 ){
-	{Serial.print("readByte(");Serial.print(address);Serial.println(")");}
+	if (SerialDebug) {SerialDebug->print("readByte(");SerialDebug->print(address);SerialDebug->println(")");}
    
     _i2c->beginTransmission((uint8_t)DEVICEADDRESS);
 	if (((memorytype>>16) &&0xff)!=0)
@@ -271,7 +278,7 @@ ZEeprom::readBytes
     unsigned int    length,
     byte*   p_data
 ){
-	{Serial.print("readBytes(");Serial.print(address);Serial.print(",");Serial.print(length);Serial.println(")");}
+	if (SerialDebug) {SerialDebug->print("readBytes(");SerialDebug->print(address);SerialDebug->print(",");SerialDebug->print(length);SerialDebug->println(")");}
    
     byte bufferCount = length / EEPROM__RD_BUFFER_SIZE;
     for (byte i = 0; i < bufferCount; i++)
@@ -308,7 +315,7 @@ ZEeprom::writePage
     unsigned int    length,
     byte*   p_data
 ){
-	{Serial.print("writePage(");Serial.print(address);Serial.print(",");Serial.print(length);Serial.println(")");}
+	if (SerialDebug) {SerialDebug->print("writePage(");SerialDebug->print(address);SerialDebug->print(",");SerialDebug->print(length);SerialDebug->println(")");}
    
 //	int size=min(EEPROM__WR_BUFFER_SIZE,length);
     // Write complete buffers.
@@ -345,7 +352,7 @@ ZEeprom::writeBuffer
     unsigned int    length,
     byte*   p_data
 ){
-	{Serial.print("writeBuffer(");Serial.print(address);Serial.print(",");Serial.print(length);Serial.println(")");}
+	if (SerialDebug) {SerialDebug->print("writeBuffer(");SerialDebug->print(address);SerialDebug->print(",");SerialDebug->print(length);SerialDebug->println(")");}
    
     _i2c->beginTransmission((uint8_t)DEVICEADDRESS);
 	if (((memorytype>>16) &&0xff)!=0)
@@ -358,7 +365,7 @@ ZEeprom::writeBuffer
         _i2c->write(p_data[i]);
     }
     int res=_i2c->endTransmission();
-    Serial.println(res);
+    if (SerialDebug) SerialDebug->println(res);
     // Write cycle time (tWR). See EEPROM memory datasheet for more details.
     delay(10);
 }
@@ -402,7 +409,7 @@ ZEeprom::writeBuffer
 
   void ZEeprom::begin(void)
   {
-	  begin(Wire, 0x50);
+	  begin(0x50);
   }
   
 /**************************************************************************//**
@@ -424,7 +431,7 @@ ZEeprom::readBuffer
     unsigned int    length,
     byte*   p_data
 ){
-	{Serial.print("readBuffer(");Serial.print(address);Serial.print(",");Serial.print(length);Serial.println(")");}
+	if (SerialDebug) {SerialDebug->print("readBuffer(");SerialDebug->print(address);SerialDebug->print(",");SerialDebug->print(length);SerialDebug->println(")");}
     _i2c->beginTransmission((uint8_t)DEVICEADDRESS);
 	if (((memorytype>>16) &&0xff)!=0)
 		_i2c->write(DATAADDRESS>>8);

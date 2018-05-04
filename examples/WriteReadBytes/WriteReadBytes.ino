@@ -35,12 +35,44 @@
 	- Arduino UNO GND to EEPROM pin 1,2,3,4
 	.
 -# for arduino Pilo
-	- PILO, connector P_COM0 pin 6 to EEPROM pin 5 SDA
-	- PILO, connector P_COM0 pin 5 to EEPROM pin 6 SCL
-	- PILO 3.3V, connector P_COM0,  pin 1 to EEPROM pin 8
-	- PILO GND, connector P_COM0,  pin 4 to EEPROM pin 1,2,3,4
+  - on P_COM4.wire
+  	- PILO,       connector P_COM4  pin 6   to   EEPROM pin 5 SDA
+	- PILO,       connector P_COM4  pin 5   to   EEPROM pin 6 SCL
+	- PILO 3.3V,  connector P_COM4  pin 3   to   EEPROM pin 8
+	- PILO GND,   connector P_COM4  pin 4   to   EEPROM pin 1,2,3,4
 	.
-	
+  - on P_COM2.wire
+  	- PILO,       connector P_COM2  pin 6   to   EEPROM pin 5 SDA
+	- PILO,       connector P_COM2  pin 5   to   EEPROM pin 6 SCL
+	- PILO 3.3V,  connector P_COM2  pin 3   to   EEPROM pin 8
+	- PILO GND,   connector P_COM2  pin 4   to   EEPROM pin 1,2,3,4
+	.
+  - on P_COM0.wire
+	- PILO,       connector P_COM0  pin 6   to   EEPROM pin 5 SDA
+	- PILO,       connector P_COM0  pin 5   to   EEPROM pin 6 SCL
+	- PILO 3.3V,  connector P_COM0  pin 3   to   EEPROM pin 8
+	- PILO GND,   connector P_COM0  pin 4   to   EEPROM pin 1,2,3,4
+	.
+  - on P_COM0_BIS.wire
+	- PILO,       connector P_COM0_BIS  pin 6   to   EEPROM pin 5 SDA
+	- PILO,       connector P_COM0_BIS  pin 5   to   EEPROM pin 6 SCL
+	- PILO 5V,    connector P_COM0_BIS  pin 2   to   EEPROM pin 8
+	- PILO GND,   connector P_COM0_BIS  pin 4   to   EEPROM pin 1,2,3,4
+	.
+  - on P_COM1.wire
+	- PILO,       connector P_COM1  pin 6   to   EEPROM pin 5 SDA
+	- PILO,       connector P_COM1  pin 5   to   EEPROM pin 6 SCL
+	- PILO 5V,    connector P_COM1  pin 2   to   EEPROM pin 8
+	- PILO GND,   connector P_COM1  pin 4   to   EEPROM pin 1,2,3,4
+	.
+  - on P_COM5.wire
+	- PILO,       connector P_COM5  pin 6   to   EEPROM pin 5 SDA
+	- PILO,       connector P_COM5  pin 5   to   EEPROM pin 6 SCL
+	- PILO 5V,    connector P_COM5  pin 2   to   EEPROM pin 8
+	- PILO GND,   connector P_COM5  pin 4   to   EEPROM pin 1,2,3,4
+	.
+  .
+.
 */
 /******************************************************************************
  * Header file inclusions.
@@ -49,7 +81,7 @@
 #include <Wire.h>
 
 #include <ZEeprom.h>
-
+#include <WireUtility.h>
 /******************************************************************************
  * Private macro definitions.
  ******************************************************************************/
@@ -69,8 +101,32 @@
 /******************************************************************************
  * Public function definitions.
  ******************************************************************************/
-#define MyWire P_COM0.wire
-#define MySerial P_COM2.serial2
+ #ifdef ARDUINO_AVR_UNO
+ #define MyWire Wire 
+#define MySerial Serial 
+ #elif defined(BOARD_ID_Pilo)
+//#define MyWire P_COM0.wire
+//#define MyWire P_COM4.wire
+//#define MyWire P_COM2.wire
+
+#define MyWire P_COM0_BIS.wire
+//#define MyWire P_COM1.wire
+//#define MyWire P_COM5.wire
+#define MySerial P_COM3.serial2
+ #elif defined(BOARD_ID_Captor)
+
+//#define MyWire P_COM0.wire //sercom0
+//#define MySerial P_COM1.serial //sercom3
+
+#define MyWire WireA //sercom3
+#define MySerial P_COM0.serial2 // sercom0
+
+
+//#define MyWire WireB //sercom1
+//#define MySerial P_COM0.serial2 // sercom0
+
+#endif
+
 /**************************************************************************//**
  * \fn void setup()
  *
@@ -80,7 +136,10 @@ void setup()
 {
     // Initialize MySerial communication.
     MySerial.begin(115200);//9600
-    
+     MySerial.println("Setup...");
+     scan(MySerial,MyWire);
+    while(scanNext(MySerial,MyWire)!=0);
+     
     // Initiliaze EEPROM library.
     eeprom= new ZEeprom();
     eeprom->begin(MyWire,AT24Cxx_BASE_ADDR,AT24C02);
