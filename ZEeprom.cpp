@@ -95,7 +95,7 @@ ZEeprom::ZEeprom
 }
 
 
-void ZEeprom::setSerialDebug(Uart * mySerialDebug)
+void ZEeprom::setSerialDebug(HardwareSerial * mySerialDebug)
 {
   SerialDebug=mySerialDebug;
 }

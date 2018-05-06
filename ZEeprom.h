@@ -174,13 +174,13 @@ class ZEeprom
             unsigned int    length,
             byte*   p_buffer
         );
-        void setSerialDebug(Uart * mySerialDebug);
+        void setSerialDebug(HardwareSerial * mySerialDebug);
     private:
       int PAGE_LENGTH();
       uint32_t   memorytype;
         byte m_deviceAddress;
          TwoWire *_i2c; 
-          Uart * SerialDebug;
+          HardwareSerial * SerialDebug;
         /******************************************************************//**
          * \fn void writePage(
          * unsigned int     address,
