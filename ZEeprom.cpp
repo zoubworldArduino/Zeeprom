@@ -196,7 +196,7 @@ ZEeprom::writeBytes
         {
             notAlignedLength = length;
         }
-		Serial.println("writePage1");
+        if (SerialDebug) {SerialDebug->println("writePage1");}
         writePage(address, notAlignedLength, p_data);
         length -= notAlignedLength;
     }
